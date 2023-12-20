@@ -1,0 +1,3 @@
+<h1>Using VBA Automation to Send Emails</h1>
+
+This VBA macro automates the process for sending emails via Microsoft Outlook, perfect for bulk email campaigns. It is important to note that Microsoft Outlook 16 Object Library and Microsoft Scripting Runtime references are required to run this macro. The macro should linked to an active Microsoft Word document that is connected to an external data source containing mail merge data. For each record, it extracts email details such as recipient, sender address, attachment pathway, subject, security classification, BCC, and CC from the external data source. The code supports attachment inclusion and enables sending emails immediately or saving them as drafts.
