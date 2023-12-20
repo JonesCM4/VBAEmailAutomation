@@ -1,0 +1,71 @@
+'Microsoft Outlook 16 Object Library and Microsoft Scripting Runtime are required references for this macro
+
+Sub VBA_Email_Automation()
+
+'declare variables
+Dim outlookMailMergeDoc As Document
+Dim i As Long
+Dim outlookObject As Object
+Dim outlookEmail As Object
+Dim recipient As String
+Dim senderAddress As String
+Dim attachmentPathway As String
+Dim emailSubject As String
+Dim bccAddress As String
+Dim ccAddress As String
+
+'identify the mail merge of the active document
+Set outlookMailMergeDoc = ActiveDocument
+
+'check if the outlook application is open, if not new email
+On Error Resume Next
+Set outlookObject = GetObject(, "Outlook.Application")
+If outlookObject Is Nothing Then
+    Set outlookObject = CreateObject("Outlook.Application")
+End If
+
+'in case of error reset to 0
+On Error GoTo 0
+ 
+'loop through each word mail merge doc
+For i = 1 To outlookMailMergeDoc.MailMerge.DataSource.recordCount
+
+    'move to the respective record
+    outlookMailMergeDoc.MailMerge.DataSource.ActiveRecord = i
+ 
+    'get email details from the xlsx
+    recipient = outlookMailMergeDoc.MailMerge.DataSource.DataFields("recipientAdress").Value
+    senderAddress = outlookMailMergeDoc.MailMerge.DataSource.DataFields("sendAs").Value
+    attachmentPathway = outlookMailMergeDoc.MailMerge.DataSource.DataFields("attachment").Value
+    emailSubject = outlookMailMergeDoc.MailMerge.DataSource.DataFields("subject").Value
+    bccAddress = outlookMailMergeDoc.MailMerge.DataSource.DataFields("bcc").Value
+    ccAddress = outlookMailMergeDoc.MailMerge.DataSource.DataFields("cc").Value
+    sensitivityLabel = outlookMailMergeDoc.MailMerge.DataSource.DataFields("sensitivity").Value
+
+    'create a new mail item
+    Set outlookEmail = outlookObject.CreateItem(0)
+ 
+    'populate the email
+    With outlookEmail
+        .recipient = recipient
+        .CC = ccAddress
+        .BCC = bccAddress
+        .SentOnBehalfOfName = senderAddress
+        .Subject = emailSubject
+        .Body = outlookMailMergeDoc.Content.Text 'use word document text as the body of the email
+        .Sensitivity = sensitivityLabel
+        If attachmentPathway <> "" Then
+            .Attachments.Add attachmentPathway
+        End If
+        .Send 'or use .Save to save as draft emails
+    End With
+Next i
+
+'reset objects
+Set outlookEmail = Nothing
+Set outlookObject = Nothing
+Set outlookMailMergeDoc = Nothing
+
+MsgBox "Macro executed successfully.", vbOKOnly
+
+End Sub
